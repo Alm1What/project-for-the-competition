@@ -1,9 +1,11 @@
 package org.example.projectforthecompetition.entity;
 
 import jakarta.persistence.*;
-import org.example.projectforthecompetition.Enum.ERole;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -15,9 +17,15 @@ public class User {
 
     private String username;
     private String password;
+    private String email;
 
-    @Enumerated(EnumType.STRING)
-    private ERole role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "author")
     private List<Course> createdCourses;
@@ -28,17 +36,54 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Comment> comments;
 
+    @Column(nullable = false)
+    private boolean deleted = false;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "restoration_at")
+    private LocalDateTime restorationAt;
+
     public User() {
     }
 
-    public User(Long id, String username, String password, ERole role, List<Course> createdCourses, List<Article> articles, List<Comment> comments) {
+    public User(Long id, String username, String password, String email, Set<Role> roles, List<Course> createdCourses, List<Article> articles, List<Comment> comments, boolean deleted, LocalDateTime deletedAt, LocalDateTime restorationAt) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.role = role;
+        this.email = email;
+        this.roles = roles;
         this.createdCourses = createdCourses;
         this.articles = articles;
         this.comments = comments;
+        this.deleted = deleted;
+        this.deletedAt = deletedAt;
+        this.restorationAt = restorationAt;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public LocalDateTime getRestorationAt() {
+        return restorationAt;
+    }
+
+    public void setRestorationAt(LocalDateTime restorationAt) {
+        this.restorationAt = restorationAt;
     }
 
     public Long getId() {
@@ -65,12 +110,12 @@ public class User {
         this.password = password;
     }
 
-    public ERole getRole() {
-        return role;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public void setRole(ERole role) {
-        this.role = role;
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     public List<Course> getCreatedCourses() {
@@ -95,5 +140,13 @@ public class User {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

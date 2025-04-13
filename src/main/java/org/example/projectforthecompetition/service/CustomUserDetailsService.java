@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        List<GrantedAuthority> authorities = user.getRole().stream() //неможна стрім по enum напевно
+        List<GrantedAuthority> authorities = user.getRoles().stream() //неможна стрім по enum напевно
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
 
